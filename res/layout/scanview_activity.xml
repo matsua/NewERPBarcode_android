@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android" 
+    android:id="@+id/treescan_frame"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#FFFFFF"
+	android:orientation="vertical">    
+
+	<LinearLayout
+	    android:layout_width="match_parent"
+	    android:layout_height="match_parent"
+	    android:layout_marginTop="50dp"
+	    android:background="#FFFFFF"
+	    android:orientation="vertical">
+	    <!-- 위치바코드 -->
+	    <LinearLayout
+	        android:id="@+id/locView"
+		    style="@style/Form.Styled.InputBar" >
+		    <LinearLayout
+			    android:id="@+id/treescan_loc_inputbar"
+			    style="@style/Form.Styled.InputBox" >
+			    <TextView
+			        android:id="@+id/scanview_locCd_lavel"
+				    style="@style/Form.Styled.LeftLavelTextView"
+				    android:text="@string/treescan_location_locCd_lavel" />
+			</LinearLayout>
+			
+			<LinearLayout
+			    style="@style/Form.Styled.InputDisplayBox"
+			    android:background="#FFFFFF">
+			    <LinearLayout
+			        android:layout_width="230dp"
+			        android:layout_height="wrap_content"
+			        android:layout_weight="0.5"
+			        android:layout_gravity="right">
+			        <EditText
+			        android:id="@+id/scanview_locCd"
+			        style="@style/Form.Styled.ScannableEditText"
+			        android:layout_width="230dp"
+			        android:layout_height="wrap_content"/>
+			    </LinearLayout>
+			    <LinearLayout
+			        android:layout_width="wrap_content"
+			        android:layout_height="wrap_content"
+			        android:layout_weight="0.5"
+			        android:layout_gravity="left">
+			    
+				    <Button android:id="@+id/locCdScan"            
+						android:layout_width="50dp"
+				        android:layout_height="wrap_content"
+				        android:layout_gravity="left"
+						android:text="scan"/>
+				   </LinearLayout>
+			</LinearLayout>
+		</LinearLayout>
+		
+	    <!-- 설비바코드 -->
+	     <LinearLayout
+	        android:id="@+id/fccView"
+		    style="@style/Form.Styled.InputBar" >
+		    <LinearLayout
+			    android:id="@+id/treescan_fcc_inputbar"
+			    style="@style/Form.Styled.InputBox" >
+			    <TextView
+			        android:id="@+id/scanview_fccCd_lavel"
+				    style="@style/Form.Styled.LeftLavelTextView"
+				    android:text="@string/treescan_fac_facCd_lavel" />
+			</LinearLayout>
+			<!-- 설비바코드 -->
+			<LinearLayout
+			    style="@style/Form.Styled.InputDisplayBox"
+			    android:background="#FFFFFF">
+			    <LinearLayout
+			        android:layout_width="230dp"
+			        android:layout_height="wrap_content"
+			        android:layout_weight="0.5"
+			        android:layout_gravity="right">
+			        <EditText
+			        android:id="@+id/scanview_fccCd"
+			        style="@style/Form.Styled.ScannableEditText"
+			        android:layout_width="230dp"
+			        android:layout_height="wrap_content"/>
+			    </LinearLayout>
+			    <LinearLayout
+			        android:layout_width="wrap_content"
+			        android:layout_height="wrap_content"
+			        android:layout_weight="0.5"
+			        android:layout_gravity="left">
+			    
+				    <Button android:id="@+id/fccCdScan"            
+						android:layout_width="50dp"
+				        android:layout_height="wrap_content"
+				        android:layout_gravity="left"
+						android:text="scan"/>
+				   </LinearLayout>
+			</LinearLayout>
+		</LinearLayout>
+		
+	     <!-- 조회버튼 -->
+
+		<LinearLayout
+		    android:layout_width="match_parent"
+		    android:layout_height="100dp"
+		    android:gravity="center_vertical"
+		    android:orientation="vertical" >
+
+			<Button
+			    android:id="@+id/send"
+			    android:layout_width="150dp"
+			    android:layout_height="wrap_content"
+			    android:layout_gravity="center"
+			    android:text="조회" />
+
+		</LinearLayout>
+	     
+	</LinearLayout>
+</FrameLayout>
