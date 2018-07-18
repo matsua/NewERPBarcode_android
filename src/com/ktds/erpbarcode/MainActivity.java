@@ -45,6 +45,7 @@ import com.ktds.erpbarcode.job.JobMenageActivity;
 import com.ktds.erpbarcode.management.RepairActivity;
 import com.ktds.erpbarcode.management.TransferActivity;
 import com.ktds.erpbarcode.management.TreeScanActivity;
+import com.ktds.erpbarcode.base.ScanViewActivity;
 import com.ktds.erpbarcode.survey.SpotCheckActivity;
 import com.ktds.erpbarcode.survey.TerminalCheckActivity;
 
@@ -573,6 +574,30 @@ public class MainActivity extends Activity {
 				Intent intent = new Intent(getApplicationContext(), BarcodeManagementLocActivity.class);
 				intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
 				startActivity(intent);
+			}else if (mChildMenuItem.getChildCode().equals("j1") ||	// OA - 신규등록 
+					mChildMenuItem.getChildCode().equals("j2") || 	// OA - 관리자변경
+					mChildMenuItem.getChildCode().equals("j3") ||	// OA - 재물조사
+					mChildMenuItem.getChildCode().equals("j4") ||	// OA - 불용요청
+					mChildMenuItem.getChildCode().equals("j5") ||	// OA - OA연식조회
+					mChildMenuItem.getChildCode().equals("j6") || 	// OA - 납품확인
+					mChildMenuItem.getChildCode().equals("j7") ||	// OA - 대여등록
+					mChildMenuItem.getChildCode().equals("j8")) {  	// OA - 대여반납
+				Intent intent = new Intent(getApplicationContext(), ScanViewActivity.class);
+				intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+				intent.putExtra("GB","OA");
+				startActivity(intent);
+			}else if (mChildMenuItem.getChildCode().equals("k1") || // OE - 신규등록
+					mChildMenuItem.getChildCode().equals("k2") || 	// OE - 관리자변경
+					mChildMenuItem.getChildCode().equals("k3") || 	// OE - 재물조사
+					mChildMenuItem.getChildCode().equals("k4") || 	// OE - 불용요청 
+					mChildMenuItem.getChildCode().equals("k5") || 	// OE - 비품연식조회
+					mChildMenuItem.getChildCode().equals("k6") || 	// OE - 납품확인 
+					mChildMenuItem.getChildCode().equals("k7") || 	// OE - 대여등록
+					mChildMenuItem.getChildCode().equals("k8")) {   // OE - 대여반납
+				Intent intent = new Intent(getApplicationContext(), ScanViewActivity.class);
+				intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+				intent.putExtra("GB","OE");
+				startActivity(intent);
 			}
 		}
 
@@ -946,11 +971,25 @@ public class MainActivity extends Activity {
 		mGroupItems.add(groupMenuItem);
 		
 		groupMenuItem = new GroupMenuItem();
-		groupMenuItem.setIconId(0);
-		groupMenuItem.setUpIconId(0);
-		groupMenuItem.setGroupCode("");
-		groupMenuItem.setGroupName("");
+		groupMenuItem.setIconId(R.drawable.main_button_menu_j);
+		groupMenuItem.setUpIconId(R.drawable.main_button_menu_j_up);
+		groupMenuItem.setGroupCode("J");
+		groupMenuItem.setGroupName("OA");
 		mGroupItems.add(groupMenuItem);
+		
+		groupMenuItem = new GroupMenuItem();
+		groupMenuItem.setIconId(R.drawable.main_button_menu_k);
+		groupMenuItem.setUpIconId(R.drawable.main_button_menu_k_up);
+		groupMenuItem.setGroupCode("k");
+		groupMenuItem.setGroupName("OE");
+		mGroupItems.add(groupMenuItem);
+		
+//		groupMenuItem = new GroupMenuItem();
+//		groupMenuItem.setIconId(0);
+//		groupMenuItem.setUpIconId(0);
+//		groupMenuItem.setGroupCode("");
+//		groupMenuItem.setGroupName("");
+//		mGroupItems.add(groupMenuItem);
 		
 		groupMenuItem = new GroupMenuItem();
 		groupMenuItem.setIconId(0);
@@ -1275,6 +1314,130 @@ public class MainActivity extends Activity {
 		childMenuItem.setChildName("소스마킹");
 		childItemsContent.add(childMenuItem);
 	
+		mChildItems.add(childItemsContent);
+		
+		// ---------------------------------------------------------------------
+		// 서브메뉴 ( BASE_OA )
+		childItemsContent = new ArrayList<ChildMenuItem>();
+		
+		childMenuItem = new ChildMenuItem();
+		childMenuItem.setIconId(R.drawable.main_button_menu_jk1);
+		childMenuItem.setUpIconId(R.drawable.main_button_menu_jk1);
+		childMenuItem.setChildCode("j1");
+		childMenuItem.setChildName("신규등록");
+		childItemsContent.add(childMenuItem);
+
+		childMenuItem = new ChildMenuItem();
+		childMenuItem.setIconId(R.drawable.main_button_menu_jk2);
+		childMenuItem.setUpIconId(R.drawable.main_button_menu_jk2);
+		childMenuItem.setChildCode("j2");
+		childMenuItem.setChildName("관리자변경");
+		childItemsContent.add(childMenuItem);
+		
+		childMenuItem = new ChildMenuItem();
+		childMenuItem.setIconId(R.drawable.main_button_menu_jk3);
+		childMenuItem.setUpIconId(R.drawable.main_button_menu_jk3);
+		childMenuItem.setChildCode("j3");
+		childMenuItem.setChildName("재물조사");
+		childItemsContent.add(childMenuItem);
+		
+		childMenuItem = new ChildMenuItem();
+		childMenuItem.setIconId(R.drawable.main_button_menu_jk4);
+		childMenuItem.setUpIconId(R.drawable.main_button_menu_jk4);
+		childMenuItem.setChildCode("j4");
+		childMenuItem.setChildName("불용요청");
+		childItemsContent.add(childMenuItem);
+		
+		childMenuItem = new ChildMenuItem();
+		childMenuItem.setIconId(R.drawable.main_button_menu_j5);
+		childMenuItem.setUpIconId(R.drawable.main_button_menu_j5);
+		childMenuItem.setChildCode("j5");
+		childMenuItem.setChildName("OA연식조회");
+		childItemsContent.add(childMenuItem);
+		
+		childMenuItem = new ChildMenuItem();
+		childMenuItem.setIconId(R.drawable.main_button_menu_jk6);
+		childMenuItem.setUpIconId(R.drawable.main_button_menu_jk6);
+		childMenuItem.setChildCode("j6");
+		childMenuItem.setChildName("납품확인");
+		childItemsContent.add(childMenuItem);
+		
+		childMenuItem = new ChildMenuItem();
+		childMenuItem.setIconId(R.drawable.main_button_menu_jk7);
+		childMenuItem.setUpIconId(R.drawable.main_button_menu_jk7);
+		childMenuItem.setChildCode("j7");
+		childMenuItem.setChildName("대여등록");
+		childItemsContent.add(childMenuItem);
+		
+		childMenuItem = new ChildMenuItem();
+		childMenuItem.setIconId(R.drawable.main_button_menu_jk8);
+		childMenuItem.setUpIconId(R.drawable.main_button_menu_jk8);
+		childMenuItem.setChildCode("j8");
+		childMenuItem.setChildName("대여반납");
+		childItemsContent.add(childMenuItem);
+		
+		mChildItems.add(childItemsContent);
+		
+		// ---------------------------------------------------------------------
+		// 서브메뉴 ( BASE_OE )
+		childItemsContent = new ArrayList<ChildMenuItem>();
+		
+		childMenuItem = new ChildMenuItem();
+		childMenuItem.setIconId(R.drawable.main_button_menu_jk1);
+		childMenuItem.setUpIconId(R.drawable.main_button_menu_jk1);
+		childMenuItem.setChildCode("k1");
+		childMenuItem.setChildName("신규등록");
+		childItemsContent.add(childMenuItem);
+
+		childMenuItem = new ChildMenuItem();
+		childMenuItem.setIconId(R.drawable.main_button_menu_jk2);
+		childMenuItem.setUpIconId(R.drawable.main_button_menu_jk2);
+		childMenuItem.setChildCode("k2");
+		childMenuItem.setChildName("관리자변경");
+		childItemsContent.add(childMenuItem);
+		
+		childMenuItem = new ChildMenuItem();
+		childMenuItem.setIconId(R.drawable.main_button_menu_jk3);
+		childMenuItem.setUpIconId(R.drawable.main_button_menu_jk3);
+		childMenuItem.setChildCode("k3");
+		childMenuItem.setChildName("재물조사");
+		childItemsContent.add(childMenuItem);
+		
+		childMenuItem = new ChildMenuItem();
+		childMenuItem.setIconId(R.drawable.main_button_menu_jk4);
+		childMenuItem.setUpIconId(R.drawable.main_button_menu_jk4);
+		childMenuItem.setChildCode("k4");
+		childMenuItem.setChildName("불용요청");
+		childItemsContent.add(childMenuItem);
+		
+		childMenuItem = new ChildMenuItem();
+		childMenuItem.setIconId(R.drawable.main_button_menu_k5);
+		childMenuItem.setUpIconId(R.drawable.main_button_menu_k5);
+		childMenuItem.setChildCode("k5");
+		childMenuItem.setChildName("비품연식조회");
+		childItemsContent.add(childMenuItem);
+		
+		childMenuItem = new ChildMenuItem();
+		childMenuItem.setIconId(R.drawable.main_button_menu_jk6);
+		childMenuItem.setUpIconId(R.drawable.main_button_menu_jk6);
+		childMenuItem.setChildCode("k6");
+		childMenuItem.setChildName("납품확인");
+		childItemsContent.add(childMenuItem);
+		
+		childMenuItem = new ChildMenuItem();
+		childMenuItem.setIconId(R.drawable.main_button_menu_jk7);
+		childMenuItem.setUpIconId(R.drawable.main_button_menu_jk7);
+		childMenuItem.setChildCode("k7");
+		childMenuItem.setChildName("대여등록");
+		childItemsContent.add(childMenuItem);
+		
+		childMenuItem = new ChildMenuItem();
+		childMenuItem.setIconId(R.drawable.main_button_menu_jk8);
+		childMenuItem.setUpIconId(R.drawable.main_button_menu_jk8);
+		childMenuItem.setChildCode("k8");
+		childMenuItem.setChildName("대여반납");
+		childItemsContent.add(childMenuItem);
+		
 		mChildItems.add(childItemsContent);
 	}
 	

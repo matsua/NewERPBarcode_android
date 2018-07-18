@@ -65,7 +65,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="left"
-                    android:text="@string/msg_scan_default_format"
+                    android:text="@string/msg_default_format"
                     android:textColor="#ffc0c0c0"
                     android:textSize="12sp" />
 
@@ -74,7 +74,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="left"
-                    android:text="@string/msg_scan_default_type"
+                    android:text="@string/msg_default_type"
                     android:textColor="#ffc0c0c0"
                     android:textSize="12sp" />
             </LinearLayout>
@@ -91,7 +91,7 @@
                     android:autoLink="web"
                     android:gravity="left|top"
                     android:paddingLeft="12dip"
-                    android:text="@string/msg_scan_default_contents"
+                    android:text="@string/msg_default_contents"
                     android:textColor="@color/status_text"
                     android:textSize="22dip" />
             </ScrollView>
@@ -194,7 +194,7 @@
                     android:layout_gravity="center"
                     android:layout_weight="1"
                     android:gravity="center"
-                    android:text="@string/msg_scan_default_status"
+                    android:text="@string/msg_default_status"
                     android:textColor="@color/status_text" />
             </LinearLayout>
         </LinearLayout>
