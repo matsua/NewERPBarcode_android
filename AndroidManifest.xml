@@ -264,12 +264,6 @@
             android:theme="@android:style/Theme.NoTitleBar.Fullscreen">
         </activity>
         
-        <activity
-            android:name="com.ktds.erpbarcode.base.ScanViewResultActivity"
-            android:screenOrientation="portrait"
-            android:theme="@style/ErpBarcodeTheme"
-            android:windowSoftInputMode="stateHidden|adjustPan">
-        </activity>
         
     </application>
 

@@ -36,6 +36,7 @@ public class JobActionStepManager {
 	
 	public static final String JOBTYPE_SN_CHANGE = "sn_change";				 // 설비S/N변경
 	
+	public static final String JOBTYPE_BASE_GUBUN = "base_gubun";	//OA,OE 구분값 저장 
 	
 	//---------------------------------------------------------------
 	// 작업아이템 단계별 상태관리.
