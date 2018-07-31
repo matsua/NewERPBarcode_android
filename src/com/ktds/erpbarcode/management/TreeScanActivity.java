@@ -1160,6 +1160,7 @@ public class TreeScanActivity extends Activity {
 				|| mJobGubun.equals("설비정보")
 				|| mJobGubun.equals("고장정보")
 				|| mJobGubun.equals("고장수리이력")
+				|| mJobGubun.equals("형상해제(창고내)")
 		) {
 			// 위치바코드
 			mLocInputbar.setVisibility(View.GONE);
@@ -1239,7 +1240,7 @@ public class TreeScanActivity extends Activity {
         	((LinearLayout) findViewById(R.id.treescan_deviceInfo_inputbar)).setVisibility(View.GONE);
     	}
 		
-		if (!mJobGubun.equals("납품입고") && !mJobGubun.equals("실장")) {
+		if (!mJobGubun.equals("납품입고") && !mJobGubun.equals("실장") && !mJobGubun.equals("형상구성(창고내)")) {
 			//설비바코드 U-U
 			mUUCheck.setVisibility(View.GONE);
 		}
@@ -1259,10 +1260,16 @@ public class TreeScanActivity extends Activity {
 		//-----------------------------------------------------------
 		// 상위바코드BAR 
 		//-----------------------------------------------------------
-    	if (!mJobGubun.equals("실장")) {
+    	if (!mJobGubun.equals("실장") && !mJobGubun.equals("형상구성(창고내)")) {
 			// 상위바코드BAR
 			mUFacInputbar.setVisibility(View.GONE);
 		}
+    	
+    	
+    	if(mJobGubun.equals("형상구성(창고내)") || mJobGubun.equals("형상해제(창고내)")){
+    		mChkScanCheck.setChecked(true);
+    		mChkScanCheck.setEnabled(true);
+    	}
     	
     	//-----------------------------------------------------------
 		// CRUD버튼BAR 

@@ -469,6 +469,14 @@ public class MainActivity extends Activity {
 				Intent intent = new Intent(getApplicationContext(), TreeScanActivity.class);
 				intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
 		        startActivity(intent);
+			} else if (mChildMenuItem.getChildCode().equals("b8")) {  // 형상구성(창고내)
+				Intent intent = new Intent(getApplicationContext(), TreeScanActivity.class);
+				intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+		        startActivity(intent);
+			} else if (mChildMenuItem.getChildCode().equals("b9")) {  // 형상해제(창고내)
+				Intent intent = new Intent(getApplicationContext(), TreeScanActivity.class);
+				intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+		        startActivity(intent);
 			} else if (mChildMenuItem.getChildCode().equals("c1")) {  // 인스토어마킹_바코드대체요청
 				Intent intent = new Intent(getApplicationContext(), IsmRequestActivity.class);
 				intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -1057,6 +1065,20 @@ public class MainActivity extends Activity {
 		childMenuItem.setUpIconId(R.drawable.main_button_menu_b7);
 		childMenuItem.setChildCode("b7");
 		childMenuItem.setChildName("접수(팀간)");
+		childItemsContent.add(childMenuItem);
+		
+		childMenuItem = new ChildMenuItem();
+		childMenuItem.setIconId(R.drawable.main_button_menu_b7);
+		childMenuItem.setUpIconId(R.drawable.main_button_menu_b7);
+		childMenuItem.setChildCode("b8");
+		childMenuItem.setChildName("형상구성(창고내)");
+		childItemsContent.add(childMenuItem);
+		
+		childMenuItem = new ChildMenuItem();
+		childMenuItem.setIconId(R.drawable.main_button_menu_b7);
+		childMenuItem.setUpIconId(R.drawable.main_button_menu_b7);
+		childMenuItem.setChildCode("b9");
+		childMenuItem.setChildName("형상해제(창고내)");
 		childItemsContent.add(childMenuItem);
 
 		mChildItems.add(childItemsContent);
