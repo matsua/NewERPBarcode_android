@@ -31,6 +31,7 @@ import android.widget.TextView;
 import com.ktds.erpbarcode.GlobalData;
 import com.ktds.erpbarcode.R;
 import com.ktds.erpbarcode.SessionUserData;
+import com.ktds.erpbarcode.barcodeManagement.FindUserActivity;
 import com.ktds.erpbarcode.common.ErpBarcodeException;
 import com.ktds.erpbarcode.common.ErpBarcodeMessage;
 import com.ktds.erpbarcode.common.database.WorkInfo;
@@ -66,7 +67,6 @@ public class ScanViewActivity extends Activity {
 	private String type;
 	private String bsnNo;
 	private WebView mWebView;
-	private String mLoadUrl;
 	
 	
     @Override
@@ -75,24 +75,40 @@ public class ScanViewActivity extends Activity {
 		requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
         super.onCreate(savedInstanceState);
         
+        GlobalData.getInstance().setNowOpenActivity(this);
+        
+        initBarcodeScanner();
+        
         setMenuLayout();
         setContentView(R.layout.scanview_activity);
-        
-        Intent intent = new Intent(this.getIntent());
-        type = intent.getStringExtra("GB");
+        setLayout();
         
         GlobalData.getInstance().initJobActionManager();
         if (GlobalData.getInstance().getJobActionManager().getWorkStatus() == JobActionManager.JOB_WORKING) {
-			GlobalData.getInstance().getJobActionManager().getJobStepManager().finishedHandler();
-		} else {
-			try {
-				GlobalData.getInstance().getJobActionManager().setStepItem(JobActionStepManager.JOBTYPE_BASE_GUBUN, "base_gubun", type);
-			} catch (ErpBarcodeException e) {
-				e.printStackTrace();
-			}
-		}
+        	new Handler().postDelayed(
+        			new Runnable() {
+		        		public void run() {
+		        			jobNextExecutors();
+		        		}
+		        	}, 1000);
+        }         
+    }
+    
+    private void setMenuLayout() {
+    	ActionBar actionBar = getActionBar();
+        actionBar.setDisplayHomeAsUpEnabled(true);
+        actionBar.setTitle(mJobGubun + " [" + SessionUserData.getInstance().getAccessServerName() + " V" + GlobalData.getInstance().getAppVersionName()+"]");
+        actionBar.setDisplayShowTitleEnabled(true);
+        setProgressBarIndeterminateVisibility(false);
+	}
+    
+    private void setLayout() {
+    	type = "OE";
+        if(mJobGubun.contains("OA")){
+        	type = "OA";
+        }
         
-        initBarcodeScanner();
+        System.out.print("type >>>>>>>>>>>" + type);
         
         mLocInputbar = (LinearLayout) findViewById(R.id.locView);
         if(mJobGubun.equals("불용요청") || mJobGubun.equals("OA연식조회") || mJobGubun.equals("비품연식조회")){
@@ -229,27 +245,6 @@ public class ScanViewActivity extends Activity {
 						send();
 					}
 				});
-        
-        //-----------------------------------------------------------
-        // 작업관리에서 호출이면..
-        //-----------------------------------------------------------
-        GlobalData.getInstance().initJobActionManager();
-        if (GlobalData.getInstance().getJobActionManager().getWorkStatus() == JobActionManager.JOB_WORKING) {
-        	new Handler().postDelayed(
-        			new Runnable() {
-		        		public void run() {
-		        			jobNextExecutors();  // 작업아이템 1번째부터 진행한다.
-		        		}
-		        	}, 1000);
-        }         
-    }
-    
-    private void setMenuLayout() {
-    	ActionBar actionBar = getActionBar();
-        actionBar.setDisplayHomeAsUpEnabled(true);
-        actionBar.setTitle(mJobGubun + " [" + SessionUserData.getInstance().getAccessServerName() + " V" + GlobalData.getInstance().getAppVersionName()+"]");
-        actionBar.setDisplayShowTitleEnabled(true);
-        setProgressBarIndeterminateVisibility(false);
 	}
     
     private void initBarcodeScanner() {
@@ -269,10 +264,10 @@ public class ScanViewActivity extends Activity {
     
     private void scan(String type){
     	if(type.equals("loc")){
-    		Intent intent = new Intent(ScanViewActivity.this, ActivityCapture.class);
+    		Intent intent = new Intent(getApplicationContext(),ActivityCapture.class);
 			startActivityForResult(intent, REQ_CODE_SCAN_LOCATION);
     	}else{
-    		Intent intent = new Intent(ScanViewActivity.this, ActivityCapture.class);
+    		Intent intent = new Intent(getApplicationContext(),ActivityCapture.class);
 			startActivityForResult(intent, REQ_CODE_SCAN_COST);
     	}
     }
@@ -345,8 +340,6 @@ public class ScanViewActivity extends Activity {
  	}
  	
  	private void inquery(){
- 		System.out.print("inquery >>>>>>>>>>>");
- 		
  		if(mJobGubun.equals("신규등록")) bsnNo = "0501";
  	    else if(mJobGubun.equals("관리자변경")) bsnNo = "0504";
  	    else if(mJobGubun.equals("재물조사")) bsnNo = "0601";
@@ -368,8 +361,6 @@ public class ScanViewActivity extends Activity {
 		}else if(mJobGubun.equals("OA연식조회") || mJobGubun.equals("비품연식조회")){
 			url += "/item_search.jsp?COM=" + bsnNo + "&USERID=91186176&BCID=001Z00911318010012";
 		}
- 		
- 		System.out.print("url >>>>>>>>>>>" + url);
  		
  		mWebView = (WebView) findViewById(R.id.webView);
         mWebView.getSettings().setJavaScriptEnabled(true);
@@ -412,10 +403,7 @@ public class ScanViewActivity extends Activity {
     		GlobalData.getInstance().showMessageDialog(new ErpBarcodeMessage(ErpBarcodeMessage.NORMAL_PROGRESS_MESSAGE_CODE, "작업을 진행중이므로 저장할수 없습니다."));
     		return;
     	}
-
-    	//-----------------------------------------------------------
-    	// 작업인포 정보에 필요한 내역을 Set한다.
-    	//-----------------------------------------------------------
+    	
     	String locCd = mLocCdText.getText().toString().trim();
     	String offlineYn = (SessionUserData.getInstance().isOffline() ? "Y" : "N");
 
@@ -425,16 +413,8 @@ public class ScanViewActivity extends Activity {
     		e.printStackTrace();
     	}
     	
-    	//-----------------------------------------------------------
-    	// 작업관리에 저장후에는 JOB_APPEND 모드로 전환한다.
-    	//-----------------------------------------------------------
     	GlobalData.getInstance().getJobActionManager().setJobWorkMode(JobActionManager.JOB_APPEND);
-    	
-    	//-----------------------------------------------------------
-    	// 작업관리 저장후에는 changeFlag는 false로 Set한다.
-    	//-----------------------------------------------------------
     	GlobalData.getInstance().setChangeFlag(false);
-    	
     	GlobalData.getInstance().showMessageDialog(new ErpBarcodeMessage(ErpBarcodeMessage.NORMAL_PROGRESS_MESSAGE_CODE, "저장하였습니다.", BarcodeSoundPlay.SOUND_ASTERISK));
     }
  	
@@ -445,8 +425,6 @@ public class ScanViewActivity extends Activity {
     	jobNextExecutors(0);
     }
     private void jobNextExecutors(int position) {
-		Log.i(TAG, "jobNextExecutors  Start...");
-		
 		if (GlobalData.getInstance().getJobActionManager().getStepWorkCount() <= position) {
 			GlobalData.getInstance().getJobActionManager().setJobWorkMode(JobActionManager.JOB_APPEND);
 			
@@ -474,12 +452,7 @@ public class ScanViewActivity extends Activity {
     	workItem.setStepStatus(JobActionStepManager.JOB_STEP_NONE);
     	
     	Log.i(TAG, "startStepWorkItem  getJobType==>"+workItem.getJobType());
-    	if(workItem.getJobType().equals(JobActionStepManager.JOBTYPE_BASE_GUBUN)){
-    		type = GlobalData.getInstance().getJobActionManager().getJsonStepValue(workItem.getJobData(), "base_gubun");
-    		Log.i(TAG, "startStepWorkItem JOBTYPE_BASE_GUBUN==>"+type);
-    		setMenuLayout();
-    		
-    	}else if (workItem.getJobType().equals(JobActionStepManager.JOBTYPE_LOC)) {
+    	if (workItem.getJobType().equals(JobActionStepManager.JOBTYPE_LOC)) {
     		String locCd = GlobalData.getInstance().getJobActionManager().getJsonStepValue(workItem.getJobData(), "locCd");
     		Log.i(TAG, "startStepWorkItem JOBTYPE_LOC==>"+locCd);
     		validity("loc", locCd);

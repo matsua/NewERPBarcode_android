@@ -28,6 +28,7 @@ import android.widget.TextView;
 
 import com.ktds.erpbarcode.GlobalData;
 import com.ktds.erpbarcode.R;
+import com.ktds.erpbarcode.base.ScanViewActivity;
 import com.ktds.erpbarcode.common.ErpBarcodeException;
 import com.ktds.erpbarcode.common.database.WorkInfo;
 import com.ktds.erpbarcode.common.database.WorkInfoQuery;
@@ -434,7 +435,15 @@ public class JobMenageActivity extends Activity {
             startActivity(intent);
             finish();
     	}
-		
+    	else if(model.getWorkName().startsWith("신규등록") 	|| model.getWorkName().startsWith("관리자변경") ||
+    			model.getWorkName().startsWith("재물조사") 	|| model.getWorkName().startsWith("불용요청") ||
+    			model.getWorkName().startsWith("OA연식조회") 	|| model.getWorkName().startsWith("납품확인") ||
+    			model.getWorkName().startsWith("대여등록") 	|| model.getWorkName().startsWith("대여반납") ||
+    			model.getWorkName().startsWith("비품연식조회")){
+    		Intent intent = new Intent(getApplicationContext(), ScanViewActivity.class);
+            startActivity(intent);
+            finish();
+    	}
     }
 
 }
