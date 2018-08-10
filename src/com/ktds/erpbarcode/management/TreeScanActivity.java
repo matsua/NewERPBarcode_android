@@ -1266,7 +1266,12 @@ public class TreeScanActivity extends Activity {
 		}
     	
     	
-    	if(mJobGubun.equals("형상구성(창고내)") || mJobGubun.equals("형상해제(창고내)")){
+    	if(mJobGubun.equals("형상구성(창고내)")){
+    		mChkScanCheck.setChecked(true);
+    		mChkScanCheck.setEnabled(false);
+    	}
+    	
+    	if(mJobGubun.equals("형상해제(창고내)")){
     		mChkScanCheck.setChecked(true);
     		mChkScanCheck.setEnabled(true);
     	}

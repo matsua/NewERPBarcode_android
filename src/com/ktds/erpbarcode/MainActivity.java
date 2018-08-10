@@ -1068,15 +1068,15 @@ public class MainActivity extends Activity {
 		childItemsContent.add(childMenuItem);
 		
 		childMenuItem = new ChildMenuItem();
-		childMenuItem.setIconId(R.drawable.main_button_menu_b7);
-		childMenuItem.setUpIconId(R.drawable.main_button_menu_b7);
+		childMenuItem.setIconId(R.drawable.main_button_menu_b8);
+		childMenuItem.setUpIconId(R.drawable.main_button_menu_b8);
 		childMenuItem.setChildCode("b8");
 		childMenuItem.setChildName("형상구성(창고내)");
 		childItemsContent.add(childMenuItem);
 		
 		childMenuItem = new ChildMenuItem();
-		childMenuItem.setIconId(R.drawable.main_button_menu_b7);
-		childMenuItem.setUpIconId(R.drawable.main_button_menu_b7);
+		childMenuItem.setIconId(R.drawable.main_button_menu_b9);
+		childMenuItem.setUpIconId(R.drawable.main_button_menu_b9);
 		childMenuItem.setChildCode("b9");
 		childMenuItem.setChildName("형상해제(창고내)");
 		childItemsContent.add(childMenuItem);
