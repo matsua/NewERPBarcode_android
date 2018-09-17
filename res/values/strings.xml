@@ -316,14 +316,31 @@
     <string name="title_reset_password_popup">ResetPassword</string>
     <string name="hello_world">Hello world!</string>
     
-    <!-- oa.oe.scan -->
+    <!-- oa.oe.scan barcode lib -->
+    <string name="button_cancel">Cancel</string>
+    <string name="button_ok">OK</string>
+    <string name="button_open_mobi">Decoder</string>
+    <string name="button_open_license">Code License</string>
+    <string name="menu_about">About</string>
+    <string name="mobi_url">http://www.manateeworks.com</string>
+    <string name="msg_default_contents">Contents</string>
+    <string name="msg_default_format">Format</string>
+    <string name="msg_default_status">사각형안에 바코드를 놓아주세요.</string>
+    <string name="msg_about">Decoder based on mobiScans Native Barcode Decoders for Android. To purchase a decoder SDK for application integration, or to have us develop your app, visit www.manateeworks.com.\n</string>
+    <string name="msg_buggy">This device has known bugs that cause barcode scanning problems.</string>
+    <string name="msg_camera_framework_bug">Sorry, the Android camera encountered a problem. You may need to restart the device.</string>
+    <string name="msg_default_type"></string>
+    <string name="title_about">Camera Demo</string>
+    <string name="license_url">http://www.apache.org/licenses/LICENSE-2.0</string>
+     <string name="alert_title">알림</string>
+     <string name="content_msg_2">설비바코드를 스캔해주세요.</string>
+     <string name="content_msg_3">위치바코드를 스캔해주세요.</string>
+     
+     <!-- oa.oe.scan -->
     <string name="msg_scan_default_status">사각형안에 바코드를 놓아주세요.</string>
     <string name="msg_scan_default_format">Format</string>
     <string name="msg_scan_default_type"></string>
     <string name="msg_scan_default_contents">Contents</string>
-    <string name="license_url">http://www.apache.org/licenses/LICENSE-2.0</string>
-    <string name="mobi_url">http://www.manateeworks.com</string>
-    <string name="msg_camera_framework_bug">Sorry, the Android camera encountered a problem. You may need to restart the device.</string>
-    <string name="button_ok">OK</string>
+   
 	
 </resources>
