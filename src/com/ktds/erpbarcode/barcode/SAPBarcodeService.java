@@ -94,7 +94,7 @@ public class SAPBarcodeService {
     		_Barcode = barcode;
     		_OrgCode = orgCode;
     		_LocCd = locCd;
-    		_DeviceId = deviceId;
+    		_DeviceId = deviceId;    		
     	}
         public void run() {
             // TODO - PDABarcodeService와 합치기

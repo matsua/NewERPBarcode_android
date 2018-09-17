@@ -101,10 +101,8 @@ public class LocBarcodeService {
     			|| mJobGubun.equals("접수(팀간)") || mJobGubun.equals("부외실물등록요청") 
     			|| mJobGubun.equals("수리완료") || mJobGubun.equals("개조개량완료") 
     			|| mJobGubun.equals("고장등록취소") || mJobGubun.equals("수리의뢰취소") 
-    			|| mJobGubun.equals("개조개량의뢰취소") || mJobGubun.equals("개조개량완료")) {
-        	if (!locCd.startsWith("VS") 
-        			&& locCd.length() > 18 
-        			&& !locCd.substring(17).equals("0000")) {
+    			|| mJobGubun.equals("개조개량의뢰취소") || mJobGubun.equals("개조개량완료") || mJobGubun.equals("형상구성(창고내)")) {
+        	if (!locCd.startsWith("VS") && locCd.length() > 18 && !locCd.substring(17).equals("0000")) {
         		handlerSendMessage(STATE_ERROR, "'베이' 위치로는 '" + mJobGubun + "'\n\r작업을 하실 수 없습니다.");
                 return;
         	}
@@ -133,7 +131,9 @@ public class LocBarcodeService {
 				// 단지 위치바코드 있는지 없는지 체크하고 SAP메시지 출력을 위해서 호출함.
 				//  이건 뭐하는 소스인지..  참나~~
 				//---------------------------------------------------
-				locationhttp.getLocBarcodeCheckData(_LocCd);
+            	if(!mJobGubun.equals("형상구성(창고내)")){
+            		locationhttp.getLocBarcodeCheckData(_LocCd);
+            	}
 			} catch (ErpBarcodeException e) {
 				handlerSendMessage(STATE_ERROR, e);
 				return;

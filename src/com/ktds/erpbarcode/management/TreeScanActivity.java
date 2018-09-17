@@ -16,14 +16,11 @@ import android.app.AlertDialog.Builder;
 import android.app.Fragment;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.graphics.Bitmap;
 import android.graphics.Color;
-import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.provider.MediaStore;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
@@ -43,10 +40,8 @@ import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
-import android.widget.PopupMenu;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -79,8 +74,6 @@ import com.ktds.erpbarcode.common.database.WorkItem;
 import com.ktds.erpbarcode.common.http.HttpAddressConfig;
 import com.ktds.erpbarcode.common.http.OutputParameter;
 import com.ktds.erpbarcode.common.media.BarcodeSoundPlay;
-import com.ktds.erpbarcode.common.media.ScreenTools;
-import com.ktds.erpbarcode.common.media.StorageTools;
 import com.ktds.erpbarcode.common.treeview.TreeNodeInfo;
 import com.ktds.erpbarcode.common.treeview.TreeViewList;
 import com.ktds.erpbarcode.common.widget.BasicSpinnerAdapter;
@@ -92,13 +85,11 @@ import com.ktds.erpbarcode.infosearch.FailureListAdapter;
 import com.ktds.erpbarcode.infosearch.SearchWbsCheckActivity;
 import com.ktds.erpbarcode.infosearch.SelectFacDetailActivity;
 import com.ktds.erpbarcode.infosearch.SelectOrgCodeActivity;
-import com.ktds.erpbarcode.infosearch.ZoomImageActivity;
 import com.ktds.erpbarcode.infosearch.model.InfoHttpController;
 import com.ktds.erpbarcode.infosearch.model.OrgCodeInfo;
 import com.ktds.erpbarcode.job.JobActionManager;
 import com.ktds.erpbarcode.job.JobActionStepManager;
 import com.ktds.erpbarcode.management.model.SendHttpController;
-import com.ktds.erpbarcode.management.GwlenListActivity;
 
 public class TreeScanActivity extends Activity {
 
@@ -1368,6 +1359,9 @@ public class TreeScanActivity extends Activity {
     	if (step.equals("all") || step.equals("ufac")) {
     		mUFacCdText.setText("");
     		mUFacCdText.setEnabled(true);
+//    		if(mJobGubun.equals("형상구성(창고내)")){
+//    			mUFacCdText.setEnabled(false);
+//    		}
     		mUPartTypeText.setText("");
     		mThisUFacInfo = null;    // 현재 스캔한 상위바코드 정보 초기화.
     	}
@@ -2049,6 +2043,10 @@ public class TreeScanActivity extends Activity {
 		mTouchCboCode = null;
     }
     
+    public String isLocCd() {
+    	return mLocCdText.getText().toString();
+    }
+    
     public boolean isChkScan() {
     	return mChkScanCheck.isChecked();
     }
@@ -2356,7 +2354,7 @@ public class TreeScanActivity extends Activity {
      * 환경에 따라 바코드 입력컴포넌트들을 활성화/비활성화 한다.
      */
     public void setTextBoxEnable() {
-        if (mDeviceInputbar.getVisibility() != View.VISIBLE) return;
+        if (mDeviceInputbar.getVisibility() != View.VISIBLE && !mJobGubun.equals("형상구성(창고내)")) return;
 
 		String instConfPartType = "";
 		if (getBarcodeTreeAdapter()!=null) instConfPartType = getBarcodeTreeAdapter().getInstConfPartType();
@@ -3035,12 +3033,22 @@ public class TreeScanActivity extends Activity {
     	}
     	// 3. 상위바코드 체크
     	if (mUFacInputbar.getVisibility() == View.VISIBLE && mUFacCdText.isEnabled()) {
-    		if (sendCheck.instConfPartType.equals("U") && sendCheck.UFacCd.isEmpty()) {
-    			GlobalData.getInstance().showMessageDialog(new ErpBarcodeException(-1, "실장하실 대상인\n\r상위바코드를 스캔하세요."));
-            	mScannerHelper.focusEditText(mUFacCdText);
-        		return;
-    		}
+    		if(mJobGubun.equals("형상구성(창고내)")){
+        		if(sendCheck.instConfPartType.equals("U") && sendCheck.UFacCd.isEmpty()){
+        			GlobalData.getInstance().showMessageDialog(new ErpBarcodeException(-1, "형상구성하실 대상인\n\r상위바코드를 스캔하세요."));
+                	mScannerHelper.focusEditText(mUFacCdText);
+            		return;
+        		}
+        	} else{
+        		if (sendCheck.instConfPartType.equals("U") && sendCheck.UFacCd.isEmpty()) {
+        			GlobalData.getInstance().showMessageDialog(new ErpBarcodeException(-1, "실장하실 대상인\n\r상위바코드를 스캔하세요."));
+                	mScannerHelper.focusEditText(mUFacCdText);
+            		return;
+        		}
+        	}
     	}
+    	
+    	
     	
     	// 고장코드
     	if (mCboCodeInputbar.getVisibility()==View.VISIBLE && mSpinnerCboCode!=null && mSpinnerCboCode.getSelectedItemPosition()<1) {
@@ -3130,16 +3138,19 @@ public class TreeScanActivity extends Activity {
     	}
     	
 		// 마지막 스텝 - 설비바코드와 상위바코드의 운용조직을 비교한다.
-    	if (mJobGubun.equals("실장")) {
+    	if (mJobGubun.equals("실장") || mJobGubun.equals("형상구성(창고내)")) {
     		
 			if (sendCheck.instConfInheritanceYn == null) {
 				sendCheck.instConfInheritanceYn = "N";
 				
 				// 4. 조직 상속여부 셋팅 - 스캔한 상위바코드의 장치ID = 스캔한 장치ID 또는 Unit 실장일 경우 상위바코드의 조직을 상속함
-				if ((mThisUFacInfo != null && sendCheck.deviceId.equals(mThisUFacInfo.getDeviceId())) 
-						|| sendCheck.instConfPartType.equals("U")) {
+				if ((mThisUFacInfo != null && sendCheck.deviceId.equals(mThisUFacInfo.getDeviceId())) || sendCheck.instConfPartType.equals("U")) {
     				sendCheck.instConfInheritanceYn = "Y";
     			}
+				
+				if((mThisUFacInfo != null && mJobGubun.equals("형상구성(창고내)")) && (!mThisUFacInfo.getOrgId().equals(sendCheck.orgCode))){
+					sendCheck.instConfInheritanceYn = "Y";
+				}
 
 				// 5. 상속 받으면서 상위설비의 조직과 실장 대상 설비의 조직이 서로 상이할 경우 Validation - request by 정진우 2013.06.05
 				if (sendCheck.instConfInheritanceYn.equals("Y")) {
@@ -3150,6 +3161,7 @@ public class TreeScanActivity extends Activity {
 					
 					Long selectKey = getBarcodeTreeAdapter().getItemId(0);
 					BarcodeListInfo barcodeInfo = getBarcodeTreeAdapter().getBarcodeListInfo(selectKey);
+					
 					if ((mThisUFacInfo != null && !mThisUFacInfo.getOrgId().equals(barcodeInfo.getOrgId()))) {
 						
 						//-----------------------------------------------------------
@@ -3159,7 +3171,7 @@ public class TreeScanActivity extends Activity {
 						GlobalData.getInstance().setGlobalAlertDialog(true);
 						
 						GlobalData.getInstance().soundPlay(BarcodeSoundPlay.SOUND_NOTIFY);
-						String message = "실장 대상 설비의 운용조직\n\r(" + barcodeInfo.getOrgName() + ")을\n\r상위설비의 운용조직\n\r(" + mThisUFacInfo.getOrgName() + ")으로\n\r변경합니다.\n\r진행하시겠습니까?";
+						String message = mJobGubun + " 대상 설비의 운용조직\n\r(" + barcodeInfo.getOrgName() + ")을\n\r상위설비의 운용조직\n\r(" + mThisUFacInfo.getOrgName() + ")으로\n\r변경합니다.\n\r진행하시겠습니까?";
 	            		final Builder builder = new AlertDialog.Builder(this); 
                 		builder.setIcon(android.R.drawable.ic_menu_info_details);
                 		builder.setTitle("알림");
@@ -3207,7 +3219,7 @@ public class TreeScanActivity extends Activity {
 					if (sendCheck.instConfPartType.equals("S")) {
 						Long selectKey = getBarcodeTreeAdapter().getItemId(0);
 						BarcodeListInfo barcodeInfo = getBarcodeTreeAdapter().getBarcodeListInfo(selectKey);
-
+						
 						if (!SessionUserData.getInstance().getOrgId().equals(barcodeInfo.getOrgId())) {
 							
 							//-----------------------------------------------------------
@@ -3732,6 +3744,48 @@ public class TreeScanActivity extends Activity {
 	                	jsonParam.put("POSID", mWbsNoText.getText().toString());     //2012.1.9 WBS 헤더로 전송변경...
 	                
                 	jsonParam.put("CHKSCAN", CHKSCAN);
+	            }else if(mJobGubun.equals("형상구성(창고내)")){
+	            	jsonParam.put("WORKID", "0020");
+	                if (instConfPartType.equals("R")) {
+	                	jsonParam.put("PRCID", "0910");
+	                } else if (instConfPartType.equals("S")) {
+	                	jsonParam.put("PRCID", "0920");
+	                } else if (instConfPartType.equals("U")) {
+	                	jsonParam.put("PRCID", "0930");
+	                } else if (instConfPartType.equals("E")) {
+	                	jsonParam.put("PRCID", "0940");
+	                }
+	                
+	            	if (_SendCheck.instConfInheritanceYn.equals("Y")) {
+	        			jsonParam.put("ZDOCRT", "X");
+	        		} else {
+	        			jsonParam.put("ZDOCRT", "");
+	        		}
+
+		        	if (_SendCheck.isDeviceId) {
+		        		jsonParam.put("DEVICEID", _SendCheck.deviceId);
+		        	}
+		        	
+		        	if (_SendCheck.isUFacCd) {
+		        		if (_SendCheck.uPartType.equals("E")) {
+		        			jsonParam.put("UBARCODE", "");
+	                    } else {
+	                    	jsonParam.put("UBARCODE", _SendCheck.UFacCd);
+	                    }
+		        	}
+		        	
+                	if (_SendCheck.locBarcodeInfo.getLocCd().startsWith("VS")) {
+                		jsonParam.put("CHKSTORT", "X");
+                    } else {
+                    	jsonParam.put("CHKSTORT", "");
+                    }
+	                
+	                jsonParam.put("CHKSCAN", CHKSCAN);
+	                jsonParam.put("ZEQUIPLP", _SendCheck.locBarcodeInfo.getLocCd());
+	            }else if(mJobGubun.equals("형상해제(창고내)")){
+	            	jsonParam.put("WORKID", "0020");
+                	jsonParam.put("PRCID", "0950");
+	                jsonParam.put("CHKSCAN", CHKSCAN);
 	            }
     		} catch (JSONException e) {
     			_ErpBarException = new ErpBarcodeException(-1, "헤더정보 생성중 오류가 발생했습니다. "+e.getMessage());
@@ -3912,7 +3966,8 @@ public class TreeScanActivity extends Activity {
 					} else if (mJobGubun.equals("입고(팀내)")
 							|| mJobGubun.equals("출고(팀내)")
 							|| mJobGubun.equals("탈장")
-							|| mJobGubun.equals("철거") ) 
+							|| mJobGubun.equals("철거")
+							|| mJobGubun.equals("형상해제(창고내)")) 
 					{
                     	jsonSubParam.put("EXBARCODE", parentBarcode);					// 상위바코드
                     	jsonSubParam.put("BARCODE", sendBarcodeInfo.getBarcode());		// 바코드
@@ -3941,6 +3996,8 @@ public class TreeScanActivity extends Activity {
 		                    } else {
 		                    	ZPSTATU = "0190";	// 철거확정
 		                    }
+	                    }else if(mJobGubun.equals("형상해제(창고내)")){
+	                    	ZPSTATU = sendBarcodeInfo.getFacStatus();
 	                    }
                     	jsonSubParam.put("ZPSTATU", ZPSTATU);	// 설비상태
 
@@ -3987,6 +4044,18 @@ public class TreeScanActivity extends Activity {
                    		jsonSubParam.put("EXBARCODE", parentBarcode);
                     	
                     	jsonSubParam.put("ZPSTATU", ZPSTATU);		    // 설비상태
+                    }else if(mJobGubun.equals("형상구성(창고내)")){
+                    	jsonSubParam.put("BARCODE", sendBarcodeInfo.getBarcode());
+                    	jsonSubParam.put("CHKZKOSTL", CHKZKOSTL);
+                    	jsonSubParam.put("DEVICEID", sendBarcodeInfo.getDeviceId());
+                    	jsonSubParam.put("EXBARCODE", parentBarcode);
+                    	jsonSubParam.put("KOSTL", sendBarcodeInfo.getOrgId());
+                    	jsonSubParam.put("SCAN", scanValue);
+                    	jsonSubParam.put("ZPSTATU", sendBarcodeInfo.getFacStatus());
+                    	System.out.println("형상구성 설비바코드 : " + sendBarcodeInfo.getBarcode() + "조직코드 " + CHKZKOSTL);
+                    	System.out.println("형상구성 설비바코드 : " + sendBarcodeInfo.getBarcode() + "조직코드 " + sendBarcodeInfo.getOrgId());
+                    }else if(mJobGubun.equals("형상해제(창고내)")){
+                    	
                     }
     	        } catch (JSONException e1) {
     	        	_ErpBarException = new ErpBarcodeException(-1, "작업데이터 파라메터서브리스트 JSON대입중 오류가 발생했습니다. " + e1.getMessage());
@@ -4013,6 +4082,9 @@ public class TreeScanActivity extends Activity {
             
 			// 전송 ----------------------------------------------------------------------------------
             Log.i(TAG, "SendDataInTask SendHttpController "+mJobGubun+" Start...");
+            
+            System.out.println("jsonParamList" + jsonParamList);
+			System.out.println("jsonSubParamList" + jsonSubParamList);
             
             try {
         		SendHttpController sendhttp = new SendHttpController();
@@ -4048,7 +4120,12 @@ public class TreeScanActivity extends Activity {
 					sendPath = HttpAddressConfig.PATH_POST_RECEPTSCAN_NEW;
 	            } else if (mJobGubun.equals("철거")) {
 					sendPath = HttpAddressConfig.PATH_POST_REMOVALSCAN;
+	            } else if(mJobGubun.equals("형상구성(창고내)")){
+	            	sendPath = HttpAddressConfig.PATH_POST_FORM_MAKE;
+	            } else if(mJobGubun.equals("형상해제(창고내)")){
+	            	sendPath = HttpAddressConfig.PATH_POST_FORM_CLEAR;
 	            }
+				
 				_OutputParameter = sendhttp.sendToServer(sendPath, jsonParamList, jsonSubParamList);
             	
             	if (_OutputParameter == null) {
@@ -4794,49 +4871,65 @@ public class TreeScanActivity extends Activity {
     	// 베이위치로 실장시 상위바코드는 무조건 운용 상태이어야 함
         // DR_2013_54598_실장의 모든위치에서 상위바코드 운용아니면 실장 불가_2014.01.15 - request by 김희선 2014.01.08
     	//if (!mThisLocCodeInfo.getLocCd().startsWith("VS") && !mThisLocCodeInfo.getLocCd().endsWith("0000")) {
-		if (!uFacCheck.barcodeItem.getFacStatus().equals("0060")) {
-        	GlobalData.getInstance().showMessageDialog(
-        			new ErpBarcodeException(-1, "상위 설비의 상태가 '" + uFacCheck.barcodeItem.getFacStatusName() + "'인\n\r상위 설비는 '" + mJobGubun + "' 작업을\n\r하실 수 없습니다."));
-    		mScannerHelper.focusEditText(mUFacCdText);
-    		return;
-        }
-    	//}
-    	
-        /******************************************************************
-         * request by 강준석 - 2012.07.07
-         *   실장 되는 설비의 상태가 불용관련된거 실장못하게 validation 걸었는데..
-         *   상태 추가 좀 해주세요..
-         *   0021 납품취소 -> 불가
-         *   0080 탈장
-         *   0120 고장
-         *   0130 수리의뢰
-         *   0160 수리완료송부  
-         *   0200 불용대기
-         *   0210 불용요청 -> 불가
-         *   0240 불용확정 -> 불가
-         *   0260 사용중지 -> 불가
-         *   0270 출고중"
-         *    * 탈장 -> 2012.08.01
-         *   상위바코드가 탈장이면 실장 안되게...
-         *   코드 0080
-         */
-        if (uFacCheck.barcodeItem.getFacStatus().equals("0021") || uFacCheck.barcodeItem.getFacStatus().equals("0080") 
-        		|| uFacCheck.barcodeItem.getFacStatus().equals("0120") || uFacCheck.barcodeItem.getFacStatus().equals("0130")
-        		|| uFacCheck.barcodeItem.getFacStatus().equals("0160") || uFacCheck.barcodeItem.getFacStatus().equals("0200")
-        		|| uFacCheck.barcodeItem.getFacStatus().equals("0210") || uFacCheck.barcodeItem.getFacStatus().equals("0240")
-        		|| uFacCheck.barcodeItem.getFacStatus().equals("0260") || uFacCheck.barcodeItem.getFacStatus().equals("0270"))  {
-    		GlobalData.getInstance().showMessageDialog(
-    				new ErpBarcodeException(-1, "상위 설비의 상태가 '" + uFacCheck.barcodeItem.getFacStatusName() + "'인 설비는\n\r'" + mJobGubun + "' 작업을\n\r하실 수 없습니다."));
-    		mScannerHelper.focusEditText(mUFacCdText);
-    		return;
+    	if(mJobGubun.equals("실장")){
+    		if (!uFacCheck.barcodeItem.getFacStatus().equals("0060")) {
+    			GlobalData.getInstance().showMessageDialog(
+    					new ErpBarcodeException(-1, "상위 설비의 상태가 '" + uFacCheck.barcodeItem.getFacStatusName() + "'인\n\r상위 설비는 '" + mJobGubun + "' 작업을\n\r하실 수 없습니다."));
+    			mScannerHelper.focusEditText(mUFacCdText);
+    			return;
+    		}
+    		//}
+    		
+    		/******************************************************************
+    		 * request by 강준석 - 2012.07.07
+    		 *   실장 되는 설비의 상태가 불용관련된거 실장못하게 validation 걸었는데..
+    		 *   상태 추가 좀 해주세요..
+    		 *   0021 납품취소 -> 불가
+    		 *   0080 탈장
+    		 *   0120 고장
+    		 *   0130 수리의뢰
+    		 *   0160 수리완료송부  
+    		 *   0200 불용대기
+    		 *   0210 불용요청 -> 불가
+    		 *   0240 불용확정 -> 불가
+    		 *   0260 사용중지 -> 불가
+    		 *   0270 출고중"
+    		 *    * 탈장 -> 2012.08.01
+    		 *   상위바코드가 탈장이면 실장 안되게...
+    		 *   코드 0080
+    		 */
+    		if (uFacCheck.barcodeItem.getFacStatus().equals("0021") || uFacCheck.barcodeItem.getFacStatus().equals("0080") 
+    				|| uFacCheck.barcodeItem.getFacStatus().equals("0120") || uFacCheck.barcodeItem.getFacStatus().equals("0130")
+    				|| uFacCheck.barcodeItem.getFacStatus().equals("0160") || uFacCheck.barcodeItem.getFacStatus().equals("0200")
+    				|| uFacCheck.barcodeItem.getFacStatus().equals("0210") || uFacCheck.barcodeItem.getFacStatus().equals("0240")
+    				|| uFacCheck.barcodeItem.getFacStatus().equals("0260") || uFacCheck.barcodeItem.getFacStatus().equals("0270"))  {
+    			GlobalData.getInstance().showMessageDialog(
+    					new ErpBarcodeException(-1, "상위 설비의 상태가 '" + uFacCheck.barcodeItem.getFacStatusName() + "'인 설비는\n\r'" + mJobGubun + "' 작업을\n\r하실 수 없습니다."));
+    			mScannerHelper.focusEditText(mUFacCdText);
+    			return;
+    		}
+    		
+    		if (uFacCheck.barcodeItem.getDeviceId().isEmpty()) {
+    			GlobalData.getInstance().showMessageDialog(
+    					new ErpBarcodeException(-1, "장치ID가 없는 상위설비입니다.\n\r상위설비부터 처리하신 후\n\r다시 실행하세요."));
+    			mScannerHelper.focusEditText(mUFacCdText);
+    			return;
+    		}
+    	}else{
+    		if (uFacCheck.barcodeItem.getPartTypeCode().equals(""))  {
+    			GlobalData.getInstance().showMessageDialog(
+    					new ErpBarcodeException(-1, "'단품'은 형상구성 대상 설비가 아닙니다."));
+    			mScannerHelper.focusEditText(mUFacCdText);
+    			return;
+    		}
+    		
+    		if (!uFacCheck.barcodeItem.getFacStatus().equals("0100") && !uFacCheck.barcodeItem.getFacStatus().equals("0110") && !uFacCheck.barcodeItem.getFacStatus().equals("0020"))  {
+    			GlobalData.getInstance().showMessageDialog(
+    					new ErpBarcodeException(-1, "'유휴/예비/납품입고' 상태만 \n\r형상구성이 가능합니다."));
+    			mScannerHelper.focusEditText(mUFacCdText);
+    			return;
+    		}
     	}
-
-        if (uFacCheck.barcodeItem.getDeviceId().isEmpty()) {
-        	GlobalData.getInstance().showMessageDialog(
-        			new ErpBarcodeException(-1, "장치ID가 없는 상위설비입니다.\n\r상위설비부터 처리하신 후\n\r다시 실행하세요."));
-    		mScannerHelper.focusEditText(mUFacCdText);
-    		return;
-        }
 
         if (uFacCheck.barcodeItem.getOrgId().isEmpty()) {
         	GlobalData.getInstance().showMessageDialog(
@@ -4877,53 +4970,69 @@ public class TreeScanActivity extends Activity {
         mUFacCdText.setText(uFacCheck.barcodeItem.getBarcode());
         mUPartTypeText.setText(uFacCheck.barcodeItem.getPartType());
 
-        // 실장일때 상위바코드 "U"일때 계속 진행할지 물어본다.
-		if (uFacCheck.barcodeItem.getPartType().equals("U")) {
-        	if (uFacCheck.partTypeCheckYn == null) {
-        		uFacCheck.partTypeCheckYn = "N";
-        		
-        		//-----------------------------------------------------------
-        		// Yes/No Dialog
-        		//-----------------------------------------------------------
-        		if (GlobalData.getInstance().isGlobalAlertDialog()) return;
-        		GlobalData.getInstance().setGlobalAlertDialog(true);
-        		
-        		GlobalData.getInstance().soundPlay(BarcodeSoundPlay.SOUND_NOTIFY);
-        		String message = "상위 설비로 '유닛'을 스캔하였습니다.\n\r진행하시겠습니까?";
-        		final Builder builder = new AlertDialog.Builder(this); 
-        		builder.setIcon(android.R.drawable.ic_menu_info_details);
-        		builder.setTitle("알림");
-        		TextView msgText = new TextView(this);
-        		msgText.setPadding(10, 30, 10, 30);
-        		msgText.setText(message);
-        		msgText.setGravity(Gravity.CENTER);
-        		msgText.setTextSize(TypedValue.COMPLEX_UNIT_SP, 15);
-        		msgText.setTextColor(Color.BLACK);
-        		builder.setView(msgText);
-        		builder.setCancelable(false);
-        		builder.setNegativeButton("예", new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int which) {
-                    	GlobalData.getInstance().setGlobalAlertDialog(false);
-                    	
-                    	uFacCheck.partTypeCheckYn = "Y";
-                    	nextUFacCdProcess(uFacCheck);
-                    }
-                });
-                builder.setPositiveButton("아니오", new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int which) {
-                    	GlobalData.getInstance().setGlobalAlertDialog(false);
-                    	
-                    	mUFacCdText.setText("");
-                		mUPartTypeText.setText("");
-                		mScannerHelper.focusEditText(mUFacCdText);
-                		return;
-                    }
-                });
-                AlertDialog dialog = builder.create();
-                dialog.show();
-                return;
+        if(!mJobGubun.equals("형상구성(창고내)")){
+        	// 실장일때 상위바코드 "U"일때 계속 진행할지 물어본다.
+    		if (uFacCheck.barcodeItem.getPartType().equals("U")) {
+            	if (uFacCheck.partTypeCheckYn == null) {
+            		uFacCheck.partTypeCheckYn = "N";
+            		
+            		//-----------------------------------------------------------
+            		// Yes/No Dialog
+            		//-----------------------------------------------------------
+            		if (GlobalData.getInstance().isGlobalAlertDialog()) return;
+            		GlobalData.getInstance().setGlobalAlertDialog(true);
+            		
+            		GlobalData.getInstance().soundPlay(BarcodeSoundPlay.SOUND_NOTIFY);
+            		String message = "상위 설비로 '유닛'을 스캔하였습니다.\n\r진행하시겠습니까?";
+            		final Builder builder = new AlertDialog.Builder(this); 
+            		builder.setIcon(android.R.drawable.ic_menu_info_details);
+            		builder.setTitle("알림");
+            		TextView msgText = new TextView(this);
+            		msgText.setPadding(10, 30, 10, 30);
+            		msgText.setText(message);
+            		msgText.setGravity(Gravity.CENTER);
+            		msgText.setTextSize(TypedValue.COMPLEX_UNIT_SP, 15);
+            		msgText.setTextColor(Color.BLACK);
+            		builder.setView(msgText);
+            		builder.setCancelable(false);
+            		builder.setNegativeButton("예", new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int which) {
+                        	GlobalData.getInstance().setGlobalAlertDialog(false);
+                        	
+                        	uFacCheck.partTypeCheckYn = "Y";
+                        	nextUFacCdProcess(uFacCheck);
+                        }
+                    });
+                    builder.setPositiveButton("아니오", new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int which) {
+                        	GlobalData.getInstance().setGlobalAlertDialog(false);
+                        	
+                        	mUFacCdText.setText("");
+                    		mUPartTypeText.setText("");
+                    		mScannerHelper.focusEditText(mUFacCdText);
+                    		return;
+                        }
+                    });
+                    AlertDialog dialog = builder.create();
+                    dialog.show();
+                    return;
+            	}
         	}
-    	}
+        }else{
+        	if(partType_InstConf.equals(uFacCheck.barcodeItem.getPartType())){
+        		String temp = "";
+        		if(partType_InstConf.equals("S")){
+        			temp = "Shelf";
+        		}else if(partType_InstConf.equals("R")){
+        			temp = "Rack";
+        		}else if(partType_InstConf.equals("U")){
+        			temp = "Unit";
+        		}
+        		
+        		GlobalData.getInstance().showMessageDialog(new ErpBarcodeException(-1, "'" +  temp + "'의 상위바코드로 '" + temp + "' 을\n\r스캔 하실 수 없습니다."));
+        	}
+        }
+        
     	  
 		//-----------------------------------------------------------
         // 현재 스캔한 상위설비바코드 정보를 저장한다.

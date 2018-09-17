@@ -406,7 +406,7 @@ public class JobMenageActivity extends Activity {
     			|| model.getWorkName().equals("송부(팀간)") || model.getWorkName().equals("송부취소(팀간)")
     			|| model.getWorkName().equals("접수(팀간)")
     			|| model.getWorkName().equals("철거") || model.getWorkName().equals("설비상태변경")
-    			|| model.getWorkName().equals("고장등록")) {
+    			|| model.getWorkName().equals("고장등록") || model.getWorkName().equals("형상구성(창고내)") || model.getWorkName().equals("형상해제(창고내)")) {
     		Intent intent = new Intent(getApplicationContext(), TreeScanActivity.class);
             startActivity(intent);
             finish();

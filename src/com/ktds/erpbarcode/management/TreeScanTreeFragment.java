@@ -8,7 +8,6 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import android.R.integer;
 import android.app.AlertDialog;
 import android.app.AlertDialog.Builder;
 import android.app.Fragment;
@@ -32,11 +31,9 @@ import android.widget.EditText;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import com.ktds.erpbarcode.ChildMenuItem;
 import com.ktds.erpbarcode.GlobalData;
 import com.ktds.erpbarcode.R;
 import com.ktds.erpbarcode.SessionUserData;
-import com.ktds.erpbarcode.SystemInfo;
 import com.ktds.erpbarcode.barcode.BarcodeTreeAdapter;
 import com.ktds.erpbarcode.barcode.ChildTreeSearch;
 import com.ktds.erpbarcode.barcode.PDABarcodeService;
@@ -53,7 +50,6 @@ import com.ktds.erpbarcode.common.treeview.InMemoryTreeStateManager;
 import com.ktds.erpbarcode.common.treeview.TreeNodeInfo;
 import com.ktds.erpbarcode.common.treeview.TreeStateManager;
 import com.ktds.erpbarcode.common.treeview.TreeViewList;
-import com.ktds.erpbarcode.env.bluetooth.KTSyncData;
 import com.ktds.erpbarcode.infosearch.SelectFacDetailActivity;
 import com.ktds.erpbarcode.job.JobActionManager;
 import com.ktds.erpbarcode.job.JobActionStepManager;
@@ -620,6 +616,60 @@ public class TreeScanTreeFragment extends Fragment {
 			}
 		}
 		
+		if(GlobalData.getInstance().getJobGubun().equals("형상구성(창고내)") || GlobalData.getInstance().getJobGubun().equals("형상해제(창고내)")){
+			for (int i=0; i<agoCheck.barcodeItems.size(); i++) {
+				BarcodeListInfo barcodeInfo = agoCheck.barcodeItems.get(i);
+				
+				System.out.println("LocCd>>>>>>>>>>>>>>" + ((TreeScanActivity)getActivity()).isLocCd());
+				System.out.println("LocCd>>>>>>>>>>>>>>" + barcodeInfo.getLocCd());
+				System.out.println("LocCd>>>>>>>>>>>>>>" + barcodeInfo.getPartTypeCode());
+				
+				if(GlobalData.getInstance().getJobGubun().equals("형상구성(창고내)")){
+					String tempLocBarcode = ((TreeScanActivity)getActivity()).isLocCd();
+					if(!tempLocBarcode.equals(barcodeInfo.getLocCd())){
+						GlobalData.getInstance().showMessageDialog(new ErpBarcodeException(-1, "설비바코드의 위치가 스캔한 위치바코드와 다릅니다. 입고(팀내) 작업 후 형상구성하세요."));
+		            	return;
+					}
+					
+					if(barcodeInfo.getPartTypeCode().equals("")){
+						GlobalData.getInstance().showMessageDialog(new ErpBarcodeException(-1, "'단품'은 형상구성 대상 설비가 아닙니다."));
+		            	return;
+					}
+				}
+				
+				if (!barcodeInfo.getFacStatus().equals("0100") && !barcodeInfo.getFacStatus().equals("0110") && !barcodeInfo.getFacStatus().equals("0020")) {
+					String msg = "";
+					if(GlobalData.getInstance().getJobGubun().equals("형상구성(창고내)")){
+						msg = "''유휴/예비/납품입고' 상태만 \n\r형상구성이 가능합니다.";
+					}else{
+						msg = "''유휴/예비/납품입고' 상태만 \n\r형상해제가 가능합니다.";
+					}
+					GlobalData.getInstance().showMessageDialog(new ErpBarcodeException(-1, msg));
+	            	return;
+				}
+				
+				String tempBarcode = barcodeInfo.getLocCd();
+				if (!tempBarcode.startsWith("VS") && tempBarcode.length() > 18 && !tempBarcode.substring(17).equals("0000")) {
+					GlobalData.getInstance().showMessageDialog(new ErpBarcodeException(-1, "'베이' 에 위치해 있는 설비로는 '" + GlobalData.getInstance().getJobGubun() + "'\n작업을 하실 수 없습니다."));
+	            	return;
+	        	}
+				
+				if(agoCheck.barcodeItems.size() > 1){
+					for(int index = 0; index < agoCheck.barcodeItems.size(); index++){
+						String barcode = agoCheck.barcodeItems.get(index).getBarcode();
+						Long barcodeKey = getBarcodeTreeAdapter().getBarcodeKey(barcode);
+						if (barcodeKey != null) {
+			    			getBarcodeTreeAdapter().changeSelected(barcodeKey);
+			    			mBarcodeTreeView.setSelection(getBarcodeTreeAdapter().getKeyPosition(barcodeKey));
+			    			GlobalData.getInstance().showMessageDialog(
+			    					new ErpBarcodeException(-1, "중복 스캔입니다.\n\r\n\r" + barcode, BarcodeSoundPlay.SOUND_DUPLICATION));
+			    			return;
+			    		}
+					}
+				}
+			}
+        }
+		
 		// 병렬처리 가능 여부 체크
 		if (agoCheck.auto_parallel_hierarchy_yn == null) {
 			agoCheck.auto_parallel_hierarchy_yn = "Y";			// 병렬 처리 가능 - 형상 구성 하지 않음
@@ -629,7 +679,7 @@ public class TreeScanTreeFragment extends Fragment {
 			// 고장등록-김소연과장 멀티 허용
 			// 입고(팀내), 출고(팀내), 탈장, 송부(팀간), 설비상태변경, 고장, 철거 병렬 처리 허용 및 형상 구성 하지 않음 - request by 정진우팀장님 2014.01.01 
 			//-------------------------------------------------------------
-			if (GlobalData.getInstance().getJobGubun().equals("납품입고") && ((TreeScanActivity)getActivity()).isHierachyCheck() || GlobalData.getInstance().getJobGubun().equals("실장"))
+			if (GlobalData.getInstance().getJobGubun().equals("납품입고") && ((TreeScanActivity)getActivity()).isHierachyCheck() || GlobalData.getInstance().getJobGubun().equals("실장") || GlobalData.getInstance().getJobGubun().equals("형상구성(창고내)"))
 			{
 				agoCheck.auto_parallel_hierarchy_yn = "N";	// 형상 구성 및 실장일 경우 병렬 처리 불가 처리
 				
@@ -667,15 +717,18 @@ public class TreeScanTreeFragment extends Fragment {
 				}
 			}
             // 유닛이나 쉘프 실장은 전송 직전에 운용조직 변경 여부 물어 본다......................... 상속 받으면 물어 보지 않는다....
-            if (GlobalData.getInstance().getJobGubun().equals("실장")) {
+            if (GlobalData.getInstance().getJobGubun().equals("실장") || GlobalData.getInstance().getJobGubun().equals("형상구성(창고내)")) {
                 String rootPartTypeName = getBarcodeTreeAdapter().getInstConfPartType();
+                
+               System.out.println("rootPartTypeName         ===========         " + rootPartTypeName);
+                
                 if (rootPartTypeName.isEmpty()) rootPartTypeName = firstBarcodeInfo.getPartType();
                 if (rootPartTypeName.equals("U") || rootPartTypeName.equals("S"))
                 {
                     DontCheckOperationOrganizationFlag = true;
                 }
             }
-			
+            
             // 송부(팀간)도 조직변경 여부 팝업 request by 김희선 - 2014.01.01 DR-2013-56706 - 수정 : 류성호 2014.02.25
             /*
 			if (GlobalData.getInstance().getJobGubun().equals("송부(팀간)")) {
@@ -775,6 +828,9 @@ public class TreeScanTreeFragment extends Fragment {
 				for (int i=0; i<agoCheck.barcodeItems.size(); i++) {
 					BarcodeListInfo barcodeInfo = agoCheck.barcodeItems.get(i);
 					barcodeInfo.setCheckOrgYn("N");
+					if(GlobalData.getInstance().getJobGubun().equals("형상구성(창고내)")){
+						barcodeInfo.setCheckOrgYn("");
+					}
 				}
 			} else if (GlobalData.getInstance().getJobGubun().equals("송부취소(팀간)")) {
 				// 운용조직 다르면 변경여부 선택한다.
@@ -794,14 +850,18 @@ public class TreeScanTreeFragment extends Fragment {
 				}
 			} else {
 				// 운용조직 다르면 변경여부 선택한다.
-				if (!firstBarcodeInfo.getOrgId().isEmpty() &&
-						!firstBarcodeInfo.getOrgId().equals(SessionUserData.getInstance().getOrgId())) {
-					agoCheck.check_org_message = "'" + firstBarcodeInfo.getBarcode() + "' 의 운용조직은\n\r'" 
-									+ firstBarcodeInfo.getOrgName() + "' 입니다.\n\r운용조직을 '" 
-									+ SessionUserData.getInstance().getOrgName() + "'(으)로\n\r변경하시겠습니까?";
-	        		checkOrgYesNoDialog(agoCheck);
-	        		return;
-	        	}
+				
+//				if(!GlobalData.getInstance().getJobGubun().equals("형상해제(창고내)")){
+					if (!firstBarcodeInfo.getOrgId().isEmpty() &&
+							!firstBarcodeInfo.getOrgId().equals(SessionUserData.getInstance().getOrgId())) {
+						agoCheck.check_org_message = "'" + firstBarcodeInfo.getBarcode() + "' 의 운용조직은\n\r'" 
+										+ firstBarcodeInfo.getOrgName() + "' 입니다.\n\r운용조직을 '" 
+										+ SessionUserData.getInstance().getOrgName() + "'(으)로\n\r변경하시겠습니까?";
+		        		checkOrgYesNoDialog(agoCheck);
+		        		return;
+		        	}
+//				}
+				
 			}
 		}
 		

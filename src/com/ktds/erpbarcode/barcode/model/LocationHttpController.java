@@ -191,7 +191,7 @@ public class LocationHttpController {
 		}
 		
 		JSONArray jsonresults = outputParameter.getBodyResults();
-		Log.d(TAG, "위치바코드정보 결과건수 ==>"+jsonresults.length());
+		Log.d(TAG, "위치바코드정보 OTD 결과건수 ==>"+jsonresults.length());
 
 	}
 	

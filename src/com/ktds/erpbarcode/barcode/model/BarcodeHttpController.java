@@ -151,7 +151,7 @@ public class BarcodeHttpController {
 		if (jobGubun.equals("납품취소")) {
 			choicePath(HttpAddressConfig.PATH_GET_OUTINTOSTATUSCHANGELIST);
 		}
-		else if (jobGubun.equals("실장") || jobGubun.equals("수리완료")) {
+		else if (jobGubun.equals("실장") || jobGubun.equals("수리완료") || jobGubun.equals("형상구성(창고내)")) {
 			choicePath(HttpAddressConfig.PATH_GET_FACINFOINQUERY_MM);
 		} 
 		else if (jobGubun.startsWith("현장점검")) {

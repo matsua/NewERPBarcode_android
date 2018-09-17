@@ -168,6 +168,10 @@ public class HttpAddressConfig {
 	public static final String PATH_POST_SAVE_PASSWORD = "Post_Save_Password"; 			// 비밀번호 변경 저장 
 	
 	public static final String PATH_POST_LOGIN_DEV_INFO = "login_devide_info";			//중복로그인 방지 최종 접속기기 정보 저장 
+	
+	//형상구성 추가
+	public static final String PATH_POST_FORM_MAKE = "Post_FormMake";                 	// 형상구성(창고내)
+	public static final String PATH_POST_FORM_CLEAR = "Post_FormClear";                 // 형상해제(창고내)
 
 	private WebServer mServer;
 	private String mHost;
@@ -366,6 +370,10 @@ public class HttpAddressConfig {
 		mPathInfos.put(PATH_POST_REQUEST_USERAUTH, mProject + "/user/password/confirmation/no/make.json");			//비밀번호 변경 인증번호 요청 
 		mPathInfos.put(PATH_POST_CONFIRM_USERAUTH, mProject + "/user/checkCertificationNumber.json");				//비밀번호 변경 인증번호 확인 
 		mPathInfos.put(PATH_POST_SAVE_PASSWORD, mProject + "/user/password/by/user/executePasswordUpdate.json");	//비밀번호 저장
+		
+		mPathInfos.put(PATH_POST_FORM_MAKE, mProject + "/operation/mount/facility/formMake.json");		// 형상구성(창고내)
+		mPathInfos.put(PATH_POST_FORM_CLEAR, mProject + "/operation/mount/facility/formClear.json");	// 형상해제(창고내)
+		
 	}
 	
 	private String getPathMap(String pathName) {
