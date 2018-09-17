@@ -19,7 +19,10 @@
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
     <uses-permission android:name="android.permission.USE_FINGERPRINT" />
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
-    
+    <uses-permission android:name="android.permission.VIBRATE"/>
+    <uses-permission android:name="android.permission.CAMERA" />
+	<uses-feature android:name="android.hardware.camera" />
+	<uses-feature android:name="android.hardware.camera.autofocus" />
     <uses-feature android:name="android.hardware.fingerprint" android:required="true"/>
     
     <application
@@ -247,7 +250,20 @@
             android:label="@string/title_activity_delete_why_info" >
         </activity>
         
+        <activity
+            android:name="com.ktds.erpbarcode.base.ScanViewActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/ErpBarcodeTheme"
+            android:windowSoftInputMode="stateHidden|adjustPan">
+        </activity>
         
+        <activity
+            android:name="com.manateeworks.cameraDemo.ActivityCapture"
+            android:clearTaskOnLaunch="true"
+            android:configChanges="orientation|keyboardHidden"
+            android:screenOrientation="landscape"
+            android:theme="@android:style/Theme.NoTitleBar.Fullscreen">
+        </activity>
         
         
     </application>
